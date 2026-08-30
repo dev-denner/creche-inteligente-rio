@@ -1,0 +1,71 @@
+{
+  "fonte": "dadoscreche/Bases IC_ ClassificadoseFila/01_QueryA_InscricoesPorAno.csv.gz",
+  "grao": "uma opcao de creche escolhida dentro de uma inscricao",
+  "total_opcoes": 837179,
+  "anos": [
+    {
+      "ano": 2021,
+      "opcoes": 198498,
+      "criancas_distintas": 57690,
+      "unidades_distintas": 514
+    },
+    {
+      "ano": 2022,
+      "opcoes": 158122,
+      "criancas_distintas": 57820,
+      "unidades_distintas": 511
+    },
+    {
+      "ano": 2023,
+      "opcoes": 123174,
+      "criancas_distintas": 45918,
+      "unidades_distintas": 496
+    },
+    {
+      "ano": 2024,
+      "opcoes": 197406,
+      "criancas_distintas": 71757,
+      "unidades_distintas": 844
+    },
+    {
+      "ano": 2025,
+      "opcoes": 159979,
+      "criancas_distintas": 62899,
+      "unidades_distintas": 836
+    }
+  ],
+  "situacao": [
+    {
+      "situacao": "Cancelado pelo sistema",
+      "opcoes": 326316
+    },
+    {
+      "situacao": "Confirmado",
+      "opcoes": 192570
+    },
+    {
+      "situacao": "Lista de espera",
+      "opcoes": 178731
+    },
+    {
+      "situacao": "Cancelado na confirmacao",
+      "opcoes": 118816
+    },
+    {
+      "situacao": "Cancelado",
+      "opcoes": 18722
+    },
+    {
+      "situacao": "Selecionado da lista",
+      "opcoes": 1191
+    },
+    {
+      "situacao": "Ativo",
+      "opcoes": 606
+    },
+    {
+      "situacao": "Selecionado",
+      "opcoes": 227
+    }
+  ]
+}
