@@ -6,15 +6,16 @@ import { useDemoMode } from "@/components/demo/DemoModeContext";
 type Step = { titulo: string; instrucao: string; rota?: string };
 
 const STEPS: Step[] = [
-  { titulo: "1. Família em lista", instrucao: "Portal da Família → aba \"Minhas opções\": veja Maria em Lista de espera na 2ª opção.", rota: "/" },
-  { titulo: "2. Movimento da fila", instrucao: "Abra o detalhe da 1ª opção e mostre o indicador de posição/movimentação (↑/↓), calculado a partir dos dados reais.", rota: "/" },
-  { titulo: "3. Nova movimentação", instrucao: "Troque para outra opção da lista e compare a movimentação dela com a anterior.", rota: "/" },
-  { titulo: "4. Convocação", instrucao: "Destaque o bloco \"O que precisa da sua atenção\" no estado Convocado, no topo do Portal da Família.", rota: "/" },
-  { titulo: "5. Abrir convocação", instrucao: "Aba \"Convocação\": mostre tentativas de contato multicanal, contatos de confiança e o cronômetro.", rota: "/" },
-  { titulo: "6. Confirmar", instrucao: "Clique em \"Confirmar vaga\" e mostre o encerramento pendente nas demais opções.", rota: "/" },
-  { titulo: "7. Alternar para CRE", instrucao: "Troque para o Painel CRE / SME pela navegação superior.", rota: "/cre" },
-  { titulo: "8. Efeito e auditoria", instrucao: "Em \"Classificação viva\", simule a expiração de uma convocação e mostre a Trilha de Auditoria registrando o evento.", rota: "/cre" },
+  { titulo: "1. Login fake", instrucao: "Faça login com CPF + senha (gov.br simulado) e mostre o texto de autenticação simulada.", rota: "/login" },
+  { titulo: "2. Múltiplas crianças", instrucao: "Na home \"Minhas inscrições\", mostre o bloco de Maria e o botão + Nova inscrição.", rota: "/" },
+  { titulo: "3. Abrir Maria", instrucao: "Abra a inscrição de Maria e mostre a aba \"Minhas opções\" (Lista de espera na 2ª opção).", rota: "/crianca/maria" },
+  { titulo: "4. Simular avanço", instrucao: "No Painel CRE, aba Convocações → Classificação viva → \"Simular expiração\" (fila real recalculada).", rota: "/cre" },
+  { titulo: "5. Convocação", instrucao: "Volte ao Portal da Família: destaque o bloco \"Vaga disponível\" no topo e a aba Convocação (multicanal, contatos, cronômetro).", rota: "/crianca/maria" },
+  { titulo: "6. Confirmar", instrucao: "Clique em \"Confirmar vaga\".", rota: "/crianca/maria" },
+  { titulo: "7. Comprovante", instrucao: "Mostre o comprovante de confirmação (local, documentos, situação das demais opções).", rota: "/crianca/maria" },
+  { titulo: "8. Alternar para CRE", instrucao: "Troque para o Painel CRE / SME e mostre a Trilha de Auditoria com o evento registrado.", rota: "/cre" },
   { titulo: "9. Laboratório de Política", instrucao: "Abra o Laboratório de Política Pública, ajuste os pesos e clique em \"Simular impacto\".", rota: "/cre" },
+  { titulo: "10. (opcional) Nova inscrição", instrucao: "Volte à home e rode o wizard de 6 etapas até enviar uma nova inscrição fictícia.", rota: "/" },
 ];
 
 export function DemoModePanel() {

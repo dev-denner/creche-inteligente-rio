@@ -1,5 +1,6 @@
 import type { OpportunityRecord } from "@/lib/opportunity";
 import { CountdownDemo } from "@/components/family/CountdownDemo";
+import { HelpButton } from "@/components/family/HelpModal";
 
 const CONVOCADO_STATUSES = new Set(["Selecionado", "Selecionado da lista"]);
 
@@ -75,9 +76,7 @@ export function AttentionBlock({
           >
             Confirmar vaga
           </button>
-          <button className="rounded-md border border-blue-300 px-4 py-2 text-sm font-medium text-blue-800 dark:border-blue-700 dark:text-blue-300">
-            Preciso de ajuda
-          </button>
+          <HelpButton />
         </div>
       ) : (
         <div className="flex flex-col gap-3 rounded-lg border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-black/40">

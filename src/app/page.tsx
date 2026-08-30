@@ -1,39 +1,17 @@
-import { findOpportunityRecord } from "@/lib/opportunity";
-import { readOpportunityData } from "@/lib/opportunity-data";
-import { readRegua } from "@/lib/regua";
-import {
-  DEMO_OPTIONS,
-  DEMO_PRAZO_MS,
-  DEMO_RESPOSTAS,
-  DEMO_SUGGESTION,
-} from "@/lib/demo-scenario";
-import { FamilyPortal } from "@/components/family/FamilyPortal";
+import { DEMO_OPTIONS } from "@/lib/demo-scenario";
+import { HomeClient } from "@/components/family/HomeClient";
 
 export default function Home() {
-  const opportunity = readOpportunityData();
-  const regua = readRegua();
-  const records = opportunity?.registros ?? [];
+  const maria = {
+    id: "maria",
+    name: "Maria Souza",
+    cpfChild: "***.***.***-**",
+    group: "Berçário",
+    protocol: "2027-004412",
+    numOpcoes: DEMO_OPTIONS.length,
+    status: DEMO_OPTIONS[0].statusReal,
+    momento: "Acompanhamento de fila",
+  };
 
-  const options = DEMO_OPTIONS.map((opt) => ({
-    ordem: opt.ordem,
-    statusReal: opt.statusReal,
-    record: findOpportunityRecord(records, opt.unidade, opt.grupamento, opt.horario),
-  }));
-
-  const suggestion = findOpportunityRecord(
-    records,
-    DEMO_SUGGESTION.unidade,
-    DEMO_SUGGESTION.grupamento,
-    DEMO_SUGGESTION.horario,
-  );
-
-  return (
-    <FamilyPortal
-      options={options}
-      suggestion={suggestion}
-      regua={regua}
-      demoRespostas={DEMO_RESPOSTAS}
-      prazoMs={DEMO_PRAZO_MS}
-    />
-  );
+  return <HomeClient maria={maria} />;
 }

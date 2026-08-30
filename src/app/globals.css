@@ -1,8 +1,37 @@
 @import "tailwindcss";
 
+/* The reference (referencia/final.html) is a single light institutional
+   theme with no dark mode. Disable Tailwind's dark: variant entirely so
+   existing dark: classes across the app don't fight the ported palette. */
+@custom-variant dark (&:not(*));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8f8f8;
+  --foreground: #1b1b1b;
+
+  /* Ported from referencia/final.html -- canonical palette for this prototype */
+  --azul9: #0a3161;
+  --azul7: #1351b4;
+  --azul5: #2670e8;
+  --azul1: #d4e5ff;
+  --azul0: #eef4fc;
+  --amarelo: #ffcd07;
+  --verde7: #168821;
+  --verde1: #e3f5e1;
+  --verm7: #b3261e;
+  --verm1: #fdecea;
+  --lar7: #b45309;
+  --lar1: #fef3c7;
+  --roxo7: #6d28d9;
+  --roxo1: #ede9fe;
+  --c9: #1b1b1b;
+  --c7: #444;
+  --c5: #6f6f6f;
+  --c3: #ccc;
+  --c1: #f0f0f0;
+  --c0: #f8f8f8;
+  --radius: 8px;
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 
 @theme inline {
@@ -14,13 +43,58 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #f8f8f8;
+    --foreground: #1b1b1b;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  line-height: 1.5;
+}
+
+.input {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid var(--c3);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: #fff;
+  color: var(--c9);
+}
+.input:disabled {
+  opacity: 0.7;
+}
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 6px;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border: 2px solid var(--azul7);
+  background: #fff;
+  color: var(--azul7);
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  background: #fff;
+}
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.55rem 0.65rem;
+  border-bottom: 1px solid var(--c1);
+}
+.table th {
+  background: var(--azul0);
+  color: var(--azul9);
+  font-size: 0.74rem;
+  text-transform: uppercase;
 }

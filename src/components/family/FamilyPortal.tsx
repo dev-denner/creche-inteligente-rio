@@ -16,6 +16,7 @@ import { ValidationSources } from "@/components/family/ValidationSources";
 import { ContactAttempts } from "@/components/family/ContactAttempts";
 import { TrustedContacts } from "@/components/family/TrustedContacts";
 import { DocumentTriage } from "@/components/family/DocumentTriage";
+import { Comprovante } from "@/components/family/Comprovante";
 
 type OptionEntry = { ordem: number; statusReal: string; record: OpportunityRecord | null };
 
@@ -71,7 +72,7 @@ export function FamilyPortal({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-6 py-10 sm:py-14">
+    <div className="mx-auto flex w-full max-w-[1100px] flex-1 flex-col gap-6 px-4 py-6">
       <header className="flex flex-col gap-1">
         <p className="text-xs font-semibold text-blue-800 uppercase tracking-wide dark:text-blue-300">
           Minha inscrição
@@ -151,7 +152,20 @@ export function FamilyPortal({
               </div>
             )}
 
-            {active === "convocacao" && (
+            {active === "convocacao" && confirmed && (
+              <Comprovante
+                hero={hero.record}
+                outrasOpcoes={options
+                  .filter((o) => o.ordem !== hero.ordem)
+                  .map((o) => ({
+                    ordem: o.ordem,
+                    nome: o.record?.nome_unidade ?? `Unidade ${o.record?.unidade}`,
+                    status: "Cancelado na confirmacao",
+                  }))}
+              />
+            )}
+
+            {active === "convocacao" && !confirmed && (
               <div className="flex flex-col gap-6">
                 <ContactAttempts />
                 <TrustedContacts />
