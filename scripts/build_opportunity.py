@@ -116,7 +116,8 @@ def load_territory(offer_dir) -> pd.DataFrame:
     })
     u["unidade_int"] = pd.to_numeric(u["unidade_int"], errors="coerce").astype("Int64")
     assert u["unidade_int"].is_unique, "DESIGNACAO deveria ser chave única em Unidades_Unificadas"
-    return u[["unidade_int", "cre", "bairro", "microarea", "latitude", "longitude", "tipo_territorio"]]
+    return u[["unidade_int", "cre", "bairro", "microarea", "latitude", "longitude",
+              "tipo_territorio", "denominacao_territorio"]]
 
 
 def load_offer_partners(offer_dir) -> pd.DataFrame:
@@ -231,8 +232,15 @@ def main() -> None:
         is_partner = unidade in partner_units
         is_public = unidade in public_units
 
+        nome_unidade = (
+            str(terr["denominacao_territorio"])
+            if terr is not None and not pd.isna(terr["denominacao_territorio"])
+            else None
+        )
+
         record = {
             "unidade": unidade,
+            "nome_unidade": nome_unidade,
             "grupamento": grupamento,
             "horario": horario,
             "cre": (None if terr is None or pd.isna(terr["cre"]) else int(terr["cre"])),
@@ -259,6 +267,8 @@ def main() -> None:
             if pkey in partners_idx.index:
                 p = partners_idx.loc[pkey]
                 meta = float(p["meta"])
+                if record["nome_unidade"] is None:
+                    record["nome_unidade"] = str(p["nome"])
                 record.update({
                     "tipo_oferta": "parceira",
                     "capacidade_disponivel": True,
@@ -272,6 +282,8 @@ def main() -> None:
             pukey = (unidade, grupamento, horario)
             if pukey in publicas_idx.index:
                 pu = publicas_idx.loc[pukey]
+                if record["nome_unidade"] is None:
+                    record["nome_unidade"] = str(pu["denominacao"])
                 record.update({
                     "tipo_oferta": "publica",
                     "capacidade_disponivel": False,
@@ -300,22 +312,24 @@ def main() -> None:
     units_with_territory = {r["unidade"] for r in records if r["cre"] is not None}
     territory_coverage_pct = 100 * len(units_with_territory) / len(units_2025)
 
+    RANKING_SIZE = 30
     partner_rows = [r for r in records if r["capacidade_disponivel"]]
     top_pressao = sorted(
         [r for r in partner_rows if r["saldo_potencial"] is not None and r["saldo_potencial"] < 0],
         key=lambda r: r["saldo_potencial"],
-    )[:10]
+    )[:RANKING_SIZE]
     top_superavit = sorted(
         [r for r in partner_rows if r["saldo_potencial"] is not None and r["saldo_potencial"] > 0],
         key=lambda r: -r["saldo_potencial"],
-    )[:10]
-    top_demanda = sorted(records, key=lambda r: -r["demanda_1a_preferencia"])[:10]
+    )[:RANKING_SIZE]
+    top_demanda = sorted(records, key=lambda r: -r["demanda_1a_preferencia"])[:RANKING_SIZE]
 
     output = {
         "ano": 2025,
         "grao": "unidade x grupamento x horario (parceiras: unidade x grupamento, sem quebra por horario)",
         "join_key": "int(unidade) == int(esc_codigo) == int(DESIGNACAO) == int(codigo_sga/designacao); ver scripts/explore_offer_join.py",
         "definicoes": {
+            "nome_unidade": "nome de Unidades_Unificadas_com_Localizacao (preferido) ou do proprio arquivo de oferta; ausente em 15/2173 registros (unidades sem correspondencia em nenhuma das duas fontes)",
             "demanda_1a_preferencia": "inscricoes distintas com opcao=1 nessa unidade/grupamento/horario (uma por inscricao, sem duplicidade)",
             "demanda_total_preferencia_unidade": "inscricoes distintas que citaram a unidade em qualquer opcao (1-6), agregado por unidade",
             "fila_por_situacao": "contagem de opcoes por situacao da inscricao (ver dadoscreche README para o enum completo); NAO escolhemos uma definicao unica de 'fila ativa'",
@@ -332,9 +346,9 @@ def main() -> None:
             "cobertura_territorio_pct": round(territory_coverage_pct, 1),
         },
         "registros": records,
-        "top10_maior_pressao_com_capacidade_conhecida": top_pressao,
-        "top10_possivel_superavit_com_capacidade_conhecida": top_superavit,
-        "top10_maior_demanda_1a_preferencia_geral": top_demanda,
+        "ranking_maior_pressao_com_capacidade_conhecida": top_pressao,
+        "ranking_possivel_superavit_com_capacidade_conhecida": top_superavit,
+        "ranking_maior_demanda_1a_preferencia_geral": top_demanda,
     }
 
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)

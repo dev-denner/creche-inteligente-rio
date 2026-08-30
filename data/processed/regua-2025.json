@@ -1,0 +1,100 @@
+{
+  "ano": 2025,
+  "fonte": "dadoscreche/Bases IC_ ClassificadoseFila/03_QueryC_PerguntasComDescricao.csv",
+  "rotulo": "Régua histórica 2025 — dataset do desafio",
+  "aviso": "Esta é a régua de pontuação usada pela SME no processo seletivo de 2025, conforme o dataset do desafio. Não é necessariamente a régua vigente do processo atual -- a régua muda de ano para ano (ver docs/data-understanding.md).",
+  "perguntas": [
+    {
+      "perg_id": 28,
+      "pergunta_texto": "Criança cuja família seja inscrita no CadÚnico (Cadastro Único para Programas Sociais)?",
+      "pontuacao": 51,
+      "criterio_desempate": false,
+      "ordem": 1
+    },
+    {
+      "perg_id": 31,
+      "pergunta_texto": "A criança é público-alvo da educação especial?",
+      "pontuacao": 25,
+      "criterio_desempate": false,
+      "ordem": 2
+    },
+    {
+      "perg_id": 6,
+      "pergunta_texto": "Faz parte do programa bolsa família ou possui Cartão Carioca?",
+      "pontuacao": 2,
+      "criterio_desempate": false,
+      "ordem": 3
+    },
+    {
+      "perg_id": 17,
+      "pergunta_texto": "A criança e/ou familiar do seu convívio diário é vitima de violência doméstica?",
+      "pontuacao": 4,
+      "criterio_desempate": false,
+      "ordem": 4
+    },
+    {
+      "perg_id": 20,
+      "pergunta_texto": "A criança pertence a família monoparental?",
+      "pontuacao": 4,
+      "criterio_desempate": false,
+      "ordem": 5
+    },
+    {
+      "perg_id": 25,
+      "pergunta_texto": "Candidato tem pais ou responsáveis deficientes ?",
+      "pontuacao": 3,
+      "criterio_desempate": false,
+      "ordem": 6
+    },
+    {
+      "perg_id": 18,
+      "pergunta_texto": "A criança e/ou alguém do núcleo familiar apresentam doenças crônicas graves?",
+      "pontuacao": 3,
+      "criterio_desempate": false,
+      "ordem": 7
+    },
+    {
+      "perg_id": 16,
+      "pergunta_texto": "Existe algum membro do núcleo familiar que faz uso abusivo de drogas e/ou alcoól?",
+      "pontuacao": 2,
+      "criterio_desempate": false,
+      "ordem": 8
+    },
+    {
+      "perg_id": 12,
+      "pergunta_texto": "Existe algum membro do núcleo familiar que é presidiário ou ex-presidiário nos últimos 5 anos?",
+      "pontuacao": 2,
+      "criterio_desempate": false,
+      "ordem": 9
+    },
+    {
+      "perg_id": 23,
+      "pergunta_texto": "O candidato é refugiado?",
+      "pontuacao": 2,
+      "criterio_desempate": false,
+      "ordem": 10
+    },
+    {
+      "perg_id": 27,
+      "pergunta_texto": "Criança aguardou em fila de espera no ano anterior sem ter sido atendida?",
+      "pontuacao": 2,
+      "criterio_desempate": false,
+      "ordem": 11
+    },
+    {
+      "perg_id": 29,
+      "pergunta_texto": "O Candidato possui irmão matriculado na rede pública ou parceria?",
+      "pontuacao": 0,
+      "criterio_desempate": true,
+      "ordem": 12
+    },
+    {
+      "perg_id": 30,
+      "pergunta_texto": "O Candidato possui pais ou responsáveis com idade menor que 18 anos?",
+      "pontuacao": 0,
+      "criterio_desempate": true,
+      "ordem": 13
+    }
+  ],
+  "pontuacao_maxima_teorica": 100
+}

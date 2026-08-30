@@ -48,10 +48,11 @@ commit → push main → Vercel redeploy automático
 ```
 
 Sempre que o pipeline local (`python scripts/build_summary.py`,
-`python scripts/build_opportunity.py`) gerar uma versão nova dos agregados,
-commitar os JSONs atualizados em `data/processed/` e dar push — o próximo
-deploy da Vercel já serve a versão nova. A Vercel **não** roda Python nem
-acessa `../dadoscreche`; ela só empacota o que já está no repositório.
+`python scripts/build_opportunity.py`, `python scripts/build_regua.py`)
+gerar uma versão nova dos agregados, commitar os JSONs atualizados em
+`data/processed/` e dar push — o próximo deploy da Vercel já serve a versão
+nova. A Vercel **não** roda Python nem acessa `../dadoscreche`; ela só
+empacota o que já está no repositório.
 
 ## Configuração assumida
 
@@ -82,13 +83,16 @@ missão rodando explicitamente sob Node 22.22.3 — ver relatório da missão.
 - Não acessa `../dadoscreche` em nenhum momento (nem build, nem runtime) —
   todo o dado que ela lê é `data/processed/*.json`, versionado no repo.
 - Não chama a API da Anthropic durante o build.
-- Não exige `ANTHROPIC_API_KEY` para compilar ou para servir a página
-  inicial / `/api/health`. A chave só seria necessária se/quando uma
-  feature futura chamar `getAnthropicClient()` (`src/lib/anthropic.ts`) —
-  hoje nada no produto faz essa chamada.
-- Não usa Edge Runtime em nenhuma rota que dependa de `node:fs` — o Route
-  Handler `/api/health` declara `export const runtime = "nodejs"`
-  explicitamente por depender de leitura de arquivo.
+- Não exige `ANTHROPIC_API_KEY` para compilar ou para servir qualquer
+  página (`/`, `/cre`, `/api/health`). A chave só é lida quando a família
+  clica em "Explique minha situação" ou a CRE clica em "Analisar com
+  Claude" (`/api/claude/explain-family`, `/api/claude/analyze-unit`) — sem
+  a chave, essas rotas respondem 503 com uma mensagem amigável, sem
+  derrubar a página.
+- Não usa Edge Runtime em nenhuma rota que dependa de `node:fs` ou do SDK
+  da Anthropic — `/api/health`, `/api/claude/explain-family` e
+  `/api/claude/analyze-unit` declaram `export const runtime = "nodejs"`
+  explicitamente.
 
 ## Variáveis de ambiente
 

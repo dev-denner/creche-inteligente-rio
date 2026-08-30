@@ -1,63 +1,99 @@
-# Claude Impact Lab Rio 2026 — Copiloto da Fila da Creche (nome provisório)
+# Creche Inteligente Rio (nome provisório)
 
-Submissão do **Claude Impact Lab Rio 2026** para o desafio de dados da
-SME-Rio: inteligência acionável para oferta, fila e convocação de vagas de
-creche.
+**Transparência para a família. Inteligência para a CRE.**
 
-> Este README é o placeholder inicial da submissão. Campos marcados como
-> `_(preencher)_` ainda não foram definidos e não devem ser inventados.
+Submissão do **Time 6** para o **Claude Impact Lab Rio 2026**, desafio de
+dados da SME-Rio.
+
+> Campos marcados como `_(preencher)_` ainda não foram definidos e não
+> devem ser inventados.
 
 ## Equipe
 
-- Nome da equipe: `_(preencher)_`
+- Time: Time 6
 - Membros: `_(preencher)_`
 
-## Resumo
+## Problema
 
 A SME-Rio tem, simultaneamente, vagas ociosas em creches e famílias em fila
-de espera. Este projeto usa os dados históricos de inscrição em creche
-(2021–2025, anonimizados) para ajudar a responder três perguntas:
+de espera. O desafio pede inteligência acionável para responder:
 
 1. Quantas vagas abrir e onde?
 2. Em que ordem chamar a fila?
 3. Como garantir que a família chegue à vaga dentro do prazo?
 
-A jornada de produto completa ainda está em definição pelo time — o estado
-atual deste repositório é o bootstrap técnico (pipeline de dados + app +
-página de diagnóstico), não a experiência final.
+## Solução: duas perspectivas do mesmo processo
+
+### Portal da Família (`/`)
+
+Um cenário demonstrativo (sem dado pessoal real) mostrando como uma família
+poderia acompanhar sua inscrição: status da convocação, prazo, as até 5
+opções escolhidas com status e linha do tempo, a régua de pontuação
+histórica de 2025 explicada, concorrência histórica da unidade, sugestão de
+outras unidades e uma explicação em linguagem simples gerada por Claude.
+
+### Visão CRE (`/cre`)
+
+Um painel operacional real, construído sobre `data/processed/opportunity-2025.json`
+(o agregado oferta×demanda 2025 da Missão 002): cobertura da junção,
+ranking de unidades por pressão, destaque do maior caso de pressão real do
+dataset (unidade 7013), e um drawer de detalhe por unidade com "Analisar
+com Claude".
 
 ## Arquitetura
 
-Ver [`docs/architecture.md`](docs/architecture.md) para o detalhamento. Em
-resumo:
+Ver [`docs/architecture.md`](docs/architecture.md) e
+[`docs/deployment.md`](docs/deployment.md) para o detalhamento. Em resumo:
 
 ```text
 Dataset SME → pipeline offline (Python/DuckDB) → agregados auditáveis (JSON)
-→ Next.js → Claude (explicação, server-side) → recomendações para o servidor
+→ Next.js (Portal da Família + Visão CRE) → Claude (explicação, server-side)
 ```
 
-O cálculo que decide prioridade/classificação é sempre determinístico e
-auditável; o Claude só explica e comunica, nunca inventa uma classificação.
+## Onde o Claude atua -- e onde não atua
 
-Entendimento detalhado dos dados brutos da SME em
-[`docs/data-understanding.md`](docs/data-understanding.md).
+**Claude NUNCA**: classifica crianças, cria pontuação, altera posição de
+fila, decide vulnerabilidade, inventa vagas ou inventa regra normativa.
+Todo cálculo (régua de pontuação, demanda, oferta, pressão) é código
+determinístico, auditável independente de LLM -- ver
+[`docs/opportunity-model.md`](docs/opportunity-model.md).
 
-## Uso do Claude durante o desenvolvimento
+**Claude SÓ**: explica, resume, contextualiza e sugere próximos passos
+permitidos, a partir de dados estruturados já calculados. Duas chamadas
+reais, server-side (`src/lib/anthropic.ts`, `ANTHROPIC_API_KEY` nunca
+exposta ao browser):
 
-`_(preencher)_` — registrar aqui como o Claude Code foi usado para construir
-este projeto durante o hackathon (ex.: bootstrap, exploração de dados,
-revisão de código).
+- **"Explique minha situação"** (Portal da Família) --
+  `POST /api/claude/explain-family`.
+- **"Analisar com Claude"** (Visão CRE, por unidade) --
+  `POST /api/claude/analyze-unit`.
 
-## Uso do Claude dentro da aplicação
+Ambas tratam a ausência/erro da API com uma mensagem amigável, sem quebrar
+a página.
 
-Nesta fase, apenas a integração server-side foi preparada
-(`src/lib/anthropic.ts`, chave via `ANTHROPIC_API_KEY`) — nenhuma feature de
-IA está ativa no produto ainda. `_(preencher)_` quando a jornada de
-uso do Claude no produto for definida.
+## Transparência normativa
+
+A aplicação usa 5 estados visuais consistentes para nunca apresentar
+hipótese como regra vigente: **Dado do desafio**, **Histórico 2025**,
+**Demonstração**, **Proposta**, **Pendente SME**. Por exemplo: a duração do
+prazo de confirmação de vaga não foi fornecida pelo desafio -- o cronômetro
+é claramente rotulado "prazo demonstrativo", nunca uma regra oficial de 24h/48h.
+
+## Limitações do dataset
+
+O dataset é anonimizado (aleatorização, generalização, supressão) e seus
+indicadores **não representam a realidade atual da rede** -- servem para
+ilustrar a dinâmica do processo. Detalhamento completo em
+[`docs/data-understanding.md`](docs/data-understanding.md) e
+[`docs/opportunity-model.md`](docs/opportunity-model.md), incluindo: a
+régua de pontuação muda de ano para ano; unidades públicas não têm coluna
+de capacidade/meta nesta extração (só matrícula e turmas); cobertura da
+junção oferta×demanda de 2025 é 99,4% (831/836 unidades), com território
+disponível para 98,1%.
 
 ## Link da aplicação
 
-`_(preencher)_`
+`_(preencher)_` (ex.: `https://creche-inteligente-rio.vercel.app/`)
 
 ## Vídeo demo
 
@@ -72,21 +108,32 @@ npm install
 npm run dev
 ```
 
-Abra [http://localhost:3000](http://localhost:3000).
+Abra [http://localhost:3000](http://localhost:3000) (Portal da Família) e
+[http://localhost:3000/cre](http://localhost:3000/cre) (Visão CRE).
 
 Para habilitar a integração com Claude, copie `.env.example` para
 `.env.local` e preencha `ANTHROPIC_API_KEY` (nunca commitar `.env.local`).
+Sem a chave, a aplicação continua funcionando normalmente -- só os botões
+"Explique minha situação" e "Analisar com Claude" retornam um aviso
+amigável.
 
 ### Pipeline de dados (Python)
 
 Requer o dataset da SME como pasta irmã deste repositório
-(`../dadoscreche`) — ver [`scripts/README.md`](scripts/README.md).
+(`../dadoscreche`) -- ver [`scripts/README.md`](scripts/README.md).
 
 ```bash
 uv venv .venv && source .venv/bin/activate
 uv pip install -r scripts/requirements.txt
 python scripts/build_summary.py
+python scripts/build_opportunity.py
+python scripts/build_regua.py
 ```
 
-Isso gera `data/processed/summary.json`, o único artefato que a aplicação lê
-em tempo de execução.
+Isso gera `data/processed/summary.json`, `opportunity-2025.json` e
+`regua-2025.json` -- os únicos artefatos que a aplicação lê em tempo de
+execução (nunca o dataset bruto).
+
+## Deploy
+
+Ver [`docs/deployment.md`](docs/deployment.md).
