@@ -26,25 +26,34 @@ de espera. O desafio pede inteligência acionável para responder:
 
 ### Portal da Família (`/`)
 
-Um cenário demonstrativo (sem dado pessoal real) mostrando como uma família
-poderia acompanhar sua inscrição: status da convocação, prazo, as até 5
-opções escolhidas com status e linha do tempo, a régua de pontuação
-histórica de 2025 explicada, concorrência histórica da unidade, sugestão de
-outras unidades, identidade por CPF (fictício), central de convocação
-multicanal com escalonamento, contatos de confiança, comprovação
-documental com triagem assistida por Claude (human-in-the-loop), acesso
-via gov.br (mock) e transparência sobre CadÚnico/Bolsa Família, e uma
-explicação em linguagem simples gerada por Claude.
+Um cenário demonstrativo (sem dado pessoal real, Maria Souza/Ana Souza são
+nomes fictícios) organizado em abas -- Minha inscrição, Minha classificação,
+Minhas opções, Documentos e dados e, quando convocada, Convocação: status
+da convocação, prazo, as até 5 opções escolhidas (cada uma com sub-abas de
+situação/histórico, classificação, preferência e concorrência), a régua de
+pontuação histórica de 2025 explicada, concorrência histórica da unidade,
+sugestão de outras unidades, identidade por CPF (fictício, totalmente
+mascarado), central de convocação multicanal com escalonamento, contatos
+de confiança, comprovação documental com triagem assistida por Claude
+(human-in-the-loop), acesso via gov.br (mock) e transparência sobre
+CadÚnico/Bolsa Família, e uma explicação em linguagem simples gerada por
+Claude. A **preferência da família é tratada como uma hipótese de
+política em estudo** (aba "Preferência"), nunca como regra aplicada hoje.
 
-### Visão CRE (`/cre`)
+### Painel CRE / SME (`/cre`)
 
-Um painel operacional real, construído sobre `data/processed/opportunity-2025.json`
-(o agregado oferta×demanda 2025 da Missão 002): cobertura da junção,
-ranking de unidades por pressão, destaque do maior caso de pressão real do
-dataset (unidade 7013), um drawer de detalhe por unidade com "Analisar com
-Claude", uma demonstração de **classificação viva** (o que acontece quando
-uma convocação expira) e o **Laboratório de Política Pública** -- o
-simulador de peso por ordem de preferência.
+Um painel operacional organizado em abas -- Visão geral, Unidades e
+pressão, Convocações, Inconsistências, Auditoria e Laboratório de Política
+Pública --, construído sobre `data/processed/opportunity-2025.json` (o
+agregado oferta×demanda 2025 da Missão 002): cobertura da junção, ranking
+de unidades por pressão, painel territorial (dados reais vs. sinais
+propostos), destaque do maior caso de pressão real do dataset (unidade
+7013), um drawer de detalhe por unidade com "Analisar com Claude", uma
+demonstração de **classificação viva** (o que acontece quando uma
+convocação expira, com trilha de auditoria), uma tela de **inconsistências**
+com fluxo humano de revisão, e o **Laboratório de Política Pública** -- o
+simulador de peso por ordem de preferência, com auditabilidade de ponta a
+ponta (cada ação relevante gera um evento na Trilha de auditoria).
 
 ## Diferenciais
 
@@ -66,6 +75,11 @@ simulador de peso por ordem de preferência.
   encaminhamento para revisão humana explícita.
 - **IA explicável**: toda análise de Claude é sobre dados já calculados
   deterministicamente, nunca a fonte da classificação ou da decisão.
+- **Human-in-the-loop e auditabilidade**: toda triagem por IA (documentos,
+  inconsistências) termina em revisão humana explícita, e cada uma dessas
+  ações gera um evento real na Trilha de auditoria do Painel CRE/SME.
+- **Modo Demo**: painel guiado (header) com um roteiro de 9 passos para
+  apresentar a jornada completa família→CRE em poucos minutos.
 
 ## Arquitetura
 
@@ -74,7 +88,7 @@ Ver [`docs/architecture.md`](docs/architecture.md) e
 
 ```text
 Dataset SME → pipeline offline (Python/DuckDB) → agregados auditáveis (JSON)
-→ Next.js (Portal da Família + Visão CRE) → Claude (explicação, server-side)
+→ Next.js (Portal da Família + Painel CRE/SME) → Claude (explicação, server-side)
 ```
 
 ## Onde o Claude atua -- e onde não atua
@@ -94,7 +108,7 @@ escolha de modelo):
 
 - **"Explique minha situação"** (Portal da Família) --
   `POST /api/claude/explain-family`.
-- **"Analisar com Claude"** (Visão CRE, por unidade) --
+- **"Analisar com Claude"** (Painel CRE/SME, por unidade) --
   `POST /api/claude/analyze-unit`.
 - **"Analisar impacto da política"** (Laboratório de Política Pública) --
   `POST /api/claude/analyze-policy`. Nunca escolhe pesos nem recomenda
@@ -142,6 +156,12 @@ disponível para 98,1%.
   conteúdo do arquivo não é lido.
 - Adicionar/remover contatos de confiança e simular expiração de
   convocação alteram estado real do componente (local, sem persistência).
+- Simular expiração de convocação e revisar uma inconsistência geram
+  eventos reais na Trilha de auditoria (dentro da sessão, sem persistência).
+- O Modo Demo navega de verdade entre as páginas e mantém o passo atual
+  entre telas (via `localStorage`); ele guia e organiza a apresentação, mas
+  não automatiza cliques dentro dos outros componentes (confirmar vaga,
+  simular expiração etc. continuam exigindo o clique do apresentador).
 
 ## O que é integração simulada / roadmap
 
@@ -180,7 +200,7 @@ npm run dev
 ```
 
 Abra [http://localhost:3000](http://localhost:3000) (Portal da Família) e
-[http://localhost:3000/cre](http://localhost:3000/cre) (Visão CRE).
+[http://localhost:3000/cre](http://localhost:3000/cre) (Painel CRE/SME).
 
 Para habilitar a integração com Claude, copie `.env.example` para
 `.env.local` e preencha `ANTHROPIC_API_KEY` (nunca commitar `.env.local`).

@@ -1,7 +1,7 @@
 # Laboratório de Política Pública — o que é real e o que é simulado
 
 Gerado por `scripts/build_policy_lab.py` → `data/processed/policy-lab-2025.json`.
-Alimenta a feature **Laboratório de Política Pública** da Visão CRE: testar
+Alimenta a feature **Laboratório de Política Pública** do Painel CRE/SME: testar
 o efeito de dar peso à ordem de preferência da família, somado à pontuação
 socioeconômica, **sem** alterar a classificação real do Portal da Família.
 

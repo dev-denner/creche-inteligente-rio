@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import type { PolicyLabData, Pesos } from "@/lib/policy-lab";
 import { simulateAll } from "@/lib/policy-lab";
 import { ProvenanceBadge } from "@/components/ProvenanceBadge";
-import { AnalyzeWithClaude } from "@/components/cre/AnalyzeWithClaude";
+import { ClaudeAction } from "@/components/ClaudeAction";
 
 const OPCOES = ["1", "2", "3", "4", "5"];
 const OPCAO_LABEL: Record<string, string> = { "1": "1ª opção", "2": "2ª opção", "3": "3ª opção", "4": "4ª opção", "5": "5ª opção" };
@@ -31,14 +31,24 @@ export function PolicyLab({ data }: { data: PolicyLabData }) {
   return (
     <section className="flex flex-col gap-5 rounded-2xl border border-violet-200 bg-violet-50/40 p-6 dark:border-violet-900 dark:bg-violet-950/20">
       <div className="flex flex-wrap items-center gap-2">
+        <h2 className="text-lg font-semibold uppercase tracking-wide">Laboratório de Política Pública</h2>
         <ProvenanceBadge kind="proposta" />
-        <h2 className="text-lg font-semibold">Laboratório de Política Pública</h2>
       </div>
       <p className="text-sm text-black/70 dark:text-white/70">
-        Teste mudanças na regra antes de aplicá-las à população. Isto <strong>não é regra vigente</strong>{" "}
-        e <strong>não altera</strong> a classificação atual do Portal da Família -- a simulação é
-        isolada, calculada aqui no navegador a partir de {data.amostra}.
+        Simule como pesos diferentes para 1ª, 2ª, 3ª, 4ª e 5ª preferência alterariam a classificação,
+        sem mudar a regra vigente. Isto <strong>não é regra vigente</strong> e <strong>não altera</strong>{" "}
+        a classificação atual do Portal da Família -- a simulação é isolada, calculada aqui no
+        navegador.
       </p>
+      <div className="flex flex-wrap gap-2">
+        <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-800 dark:bg-violet-900/50 dark:text-violet-300">
+          {data.total_candidatos.toLocaleString("pt-BR")} candidatos reais
+        </span>
+        <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-800 dark:bg-violet-900/50 dark:text-violet-300">
+          {data.filas.length} filas reais de 2025
+        </span>
+        <ProvenanceBadge kind="historico-2025" />
+      </div>
       <p className="text-xs text-black/50 dark:text-white/50">{data.aviso}</p>
 
       <div className="flex flex-col gap-3 rounded-xl border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-black/30">
@@ -116,6 +126,39 @@ export function PolicyLab({ data }: { data: PolicyLabData }) {
           </div>
 
           <div className="flex flex-col gap-3">
+            {topMovers[0] && (
+              <div className="flex flex-col items-center gap-2 rounded-xl border border-violet-300 bg-white p-5 text-center dark:border-violet-800 dark:bg-black/30">
+                <p className="text-xs font-medium text-black/50 uppercase tracking-wide dark:text-white/50">
+                  Maior mudança nesta fila -- Candidato {topMovers[0].candidato_id}
+                </p>
+                <div className="flex items-center gap-6">
+                  <div>
+                    <p className="text-xs text-black/50 uppercase dark:text-white/50">Antes</p>
+                    <p className="font-mono text-3xl font-bold tabular-nums">{topMovers[0].posicaoBase}º</p>
+                  </div>
+                  <span className="text-2xl text-black/20 dark:text-white/20">→</span>
+                  <div>
+                    <p className="text-xs text-black/50 uppercase dark:text-white/50">Simulação</p>
+                    <p className="font-mono text-3xl font-bold tabular-nums text-violet-700 dark:text-violet-300">
+                      {topMovers[0].posicaoSimulada}º
+                    </p>
+                  </div>
+                </div>
+                <p
+                  className={`text-sm font-medium ${
+                    topMovers[0].mudanca > 0
+                      ? "text-emerald-700 dark:text-emerald-300"
+                      : "text-rose-700 dark:text-rose-300"
+                  }`}
+                >
+                  {topMovers[0].mudanca > 0 ? "↑" : "↓"} {Math.abs(topMovers[0].mudanca)} posições
+                </p>
+                <p className="text-xs text-black/50 dark:text-white/50">
+                  Candidato e pontuação são reais e anônimos; o resultado alternativo é uma simulação
+                  de política.
+                </p>
+              </div>
+            )}
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm font-medium">Detalhe por fila (maiores mudanças de posição)</p>
               <select
@@ -167,10 +210,11 @@ export function PolicyLab({ data }: { data: PolicyLabData }) {
           </div>
 
           <div className="border-t border-violet-200 pt-4 dark:border-violet-900">
-            <p className="mb-2 text-sm font-medium">Analisar impacto da política</p>
-            <AnalyzeWithClaude
+            <ClaudeAction
               endpoint="/api/claude/analyze-policy"
-              label="Analisar impacto da política"
+              label="Analisar impacto com Claude"
+              titulo="Análise do impacto da política"
+              labels={["O que mudou", "Benefícios potenciais", "Riscos e efeitos adversos", "Pontos para análise normativa"]}
               getContext={() => ({
                 pesos: appliedPesos,
                 amostra: data.amostra,

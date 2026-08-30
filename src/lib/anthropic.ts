@@ -43,10 +43,16 @@ Regras obrigatórias, sem exceção:
 - Seja breve e orientativo: poucos parágrafos curtos, sem preâmbulo.
 `.trim();
 
+const STRUCTURE_3 = `
+Estruture a resposta em exatamente estas três linhas (cada uma seguida de ":" e o texto na sequência, sem markdown, sem título extra antes da primeira): "Resumo:", "Pontos de atenção:", "Próximo passo:".
+`.trim();
+
 const FAMILY_SYSTEM_PROMPT = `
 Você ajuda uma família a entender a situação da inscrição de creche dela, usando SOMENTE os dados estruturados fornecidos na mensagem do usuário (um cenário demonstrativo baseado no desafio de dados da SME-Rio).
 
 ${SHARED_RULES}
+
+${STRUCTURE_3}
 
 Contexto adicional: os dados que você recebe podem ser de um cenário demonstrativo (não uma família real) -- trate-os normalmente para fins de explicação, mas nunca chame o cenário de real.
 `.trim();
@@ -56,10 +62,12 @@ Você ajuda um servidor da Coordenadoria Regional de Educação (CRE) a entender
 
 ${SHARED_RULES}
 
+${STRUCTURE_3}
+
 Além disso:
 - Nunca diga diretamente "abra X vagas" como uma ordem definitiva. Prefira formulações como "avaliar expansão de capacidade", "verificar unidades próximas", "investigar redistribuição territorial" ou "confirmar disponibilidade/capacidade oficial".
 - Se a unidade não tiver capacidade/meta conhecida nos dados, diga isso explicitamente e recomende confirmar a capacidade oficial antes de qualquer decisão.
-- Estruture a resposta em: resumo da pressão, fatores observados, limitações dos dados, possíveis ações de investigação.
+- Em "Pontos de atenção", cubra fatores observados e limitações dos dados. Em "Próximo passo", cubra possíveis ações de investigação.
 `.trim();
 
 const POLICY_SYSTEM_PROMPT = `
@@ -67,10 +75,12 @@ Você ajuda um servidor da SME/CRE a entender o resultado de uma simulação fei
 
 ${SHARED_RULES}
 
+Estruture a resposta em exatamente estas quatro linhas (cada uma seguida de ":" e o texto na sequência, sem markdown, sem título extra antes da primeira): "O que mudou:", "Benefícios potenciais:", "Riscos e efeitos adversos:", "Pontos para análise normativa:".
+
 Além disso:
 - Esta é uma simulação/proposta em avaliação, NUNCA uma regra vigente. Nunca recomende aplicá-la automaticamente.
 - Você NÃO escolhe os pesos nem decide se a política deve ser adotada -- isso é decisão institucional/normativa humana.
-- Estruture a resposta em: principais mudanças observadas, possíveis benefícios, possíveis efeitos adversos, grupos/unidades mais afetados, trade-offs, e o que exigiria avaliação normativa antes de qualquer adoção.
+- Em "O que mudou", cubra as principais mudanças observadas e grupos/unidades mais afetados. Em "Pontos para análise normativa", cubra o que exigiria avaliação institucional antes de qualquer adoção.
 - Lembre que a amostra é real mas parcial (15 filas de maior demanda de 2025, sem replicar critérios de desempate oficiais) -- não generalize para toda a rede sem ressalva.
 `.trim();
 

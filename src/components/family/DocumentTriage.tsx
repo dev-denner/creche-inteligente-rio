@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { ProvenanceBadge } from "@/components/ProvenanceBadge";
+import { ClaudeResponseCard } from "@/components/ClaudeResponseCard";
+
+const TRIAGE_LABELS = ["Documento legível", "Tipo aparente", "Ponto de atenção", "Recomendação"];
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -77,24 +80,27 @@ export function DocumentTriage() {
         </button>
       )}
 
-      {status !== "idle" && (
+      {(status === "loading" || status === "error") && (
         <div className="flex flex-col gap-2 rounded-lg bg-black/[.03] p-3 dark:bg-white/[.05]">
           <div className="flex items-center gap-2">
             <p className="text-sm font-medium">Triagem assistida</p>
             <ProvenanceBadge kind="demonstracao" />
           </div>
-          <p
-            className={`text-sm whitespace-pre-wrap ${
-              status === "error" ? "text-rose-700 dark:text-rose-300" : "text-black/80 dark:text-white/80"
-            }`}
-          >
+          <p className={`text-sm ${status === "error" ? "text-rose-700 dark:text-rose-300" : "text-black/60 dark:text-white/60"}`}>
             {status === "loading" ? "Pensando..." : text}
           </p>
-          <p className="text-xs text-black/50 dark:text-white/50">
-            Baseado apenas em nome/tipo/tamanho do arquivo -- não no conteúdo real do documento
-            neste protótipo.
-          </p>
         </div>
+      )}
+
+      {status === "done" && (
+        <ClaudeResponseCard text={text} labels={TRIAGE_LABELS} titulo="Triagem assistida" />
+      )}
+
+      {status === "done" && (
+        <p className="text-xs text-black/50 dark:text-white/50">
+          Nesta demo, a triagem utiliza metadados do arquivo (nome/tipo/tamanho); o conteúdo não é
+          armazenado nem enviado como documento completo.
+        </p>
       )}
 
       {status === "done" && !encaminhado && (

@@ -4,7 +4,7 @@ import type { OpportunityRecord } from "@/lib/opportunity";
 import { assessPressure } from "@/lib/opportunity";
 import { buildAttentionReasons } from "@/lib/cre-insights";
 import { ProvenanceBadge } from "@/components/ProvenanceBadge";
-import { AnalyzeWithClaude } from "@/components/cre/AnalyzeWithClaude";
+import { ClaudeAction } from "@/components/ClaudeAction";
 
 export function UnitDrawer({ record, onClose }: { record: OpportunityRecord; onClose: () => void }) {
   const pressure = assessPressure(record);
@@ -72,8 +72,11 @@ export function UnitDrawer({ record, onClose }: { record: OpportunityRecord; onC
         </section>
 
         <section className="flex flex-col gap-3 border-t border-black/10 pt-4 dark:border-white/10">
-          <h4 className="text-sm font-medium">Analisar com Claude</h4>
-          <AnalyzeWithClaude
+          <ClaudeAction
+            endpoint="/api/claude/analyze-unit"
+            label="Analisar com Claude"
+            labels={["Resumo", "Pontos de atenção", "Próximo passo"]}
+            titulo="Análise da unidade"
             getContext={() => ({
               unidade: record.unidade,
               nome: record.nome_unidade,
