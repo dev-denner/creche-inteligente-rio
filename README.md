@@ -4,7 +4,7 @@
 
 Solução do **Time 6** para o **Claude Impact Lab Rio 2026**, desenvolvida a partir do desafio de dados da Secretaria Municipal de Educação do Rio de Janeiro (SME-Rio).
 
-[**Acessar a demonstração**](https://creche-inteligente-rio.vercel.app/) · [**Painel CRE/SME**](https://creche-inteligente-rio.vercel.app/cre) · **Vídeo:** _(preencher)_
+[**Acessar a demonstração**](https://creche-inteligente-rio.vercel.app/) · [**Painel CRE/SME**](https://creche-inteligente-rio.vercel.app/cre) · **Vídeo:** (public/video.mp4)
 
 > Esta é uma demonstração construída com dados anonimizados de 2025. Os indicadores não representam a situação atual da rede e não devem ser usados para decisões reais de matrícula.
 
