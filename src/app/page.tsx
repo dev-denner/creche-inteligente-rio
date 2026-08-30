@@ -1,4 +1,5 @@
 import { readDatasetSummary } from "@/lib/summary";
+import { readOpportunitySummary } from "@/lib/opportunity";
 
 const FRENTES = [
   {
@@ -48,6 +49,7 @@ export default function Home() {
   const anoMax = anos.length ? Math.max(...anos.map((a) => a.ano)) : null;
   const unidadesMax = anos.length ? Math.max(...anos.map((a) => a.unidades_distintas)) : null;
   const situacaoTopo = summary?.situacao?.[0];
+  const opportunity = readOpportunitySummary();
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-10 px-6 py-16 sm:py-24">
@@ -123,6 +125,37 @@ export default function Home() {
           .
         </p>
       </section>
+
+      {opportunity && (
+        <section className="flex flex-col gap-4">
+          <h2 className="text-sm font-medium text-black/50 uppercase tracking-wide dark:text-white/50">
+            Modelo de oportunidade 2025 (oferta × demanda)
+          </h2>
+          <dl className="grid gap-3 sm:grid-cols-3">
+            <StatTile
+              label="Unidades com registro de oferta"
+              value={`${opportunity.cobertura.cobertura_oferta_pct}%`}
+            />
+            <StatTile
+              label="Unidades com território (CRE/bairro)"
+              value={`${opportunity.cobertura.cobertura_territorio_pct}%`}
+            />
+            <StatTile
+              label="Registros unidade×grupamento×horário"
+              value={opportunity.registros.length.toLocaleString("pt-BR")}
+            />
+          </dl>
+          <p className="text-xs text-black/40 dark:text-white/40">
+            Déficit/superávit só é calculável para unidades parceiras (têm
+            capacidade contratada); unidades públicas só têm matrícula nesta
+            extração. Metodologia completa em{" "}
+            <code className="rounded bg-black/5 px-1 py-0.5 dark:bg-white/10">
+              docs/opportunity-model.md
+            </code>
+            .
+          </p>
+        </section>
+      )}
 
       <footer className="mt-auto pt-8 text-xs text-black/40 dark:text-white/40">
         Jornada de produto ainda em definição. Esta é uma página de diagnóstico, não a

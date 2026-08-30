@@ -62,12 +62,18 @@ README); distribuição por ano — 2021: 198.498, 2022: 158.122, 2023: 123.174,
   (`cod_territ`), mas **essa junção não foi validada nesta missão** — os
   formatos (`1.1` vs. um código de território) não foram conferidos linha a
   linha e podem exigir tratamento.
-- As planilhas de oferta (`Parceiras*`, `totalalunoscreche*`) trazem `CRE`,
-  `Designação`/`Nº`/`Código SGA` e nome da unidade, mas **não foi confirmado
-  nesta missão** um campo que junte diretamente com `unidade` (`esc_codigo`)
-  da Query A — provavelmente exige normalização de nome ou uso de um código
-  SGA/INEP que aparece só nalgumas planilhas (visto em `Parceiras2024.xlsx`,
-  aba "Maio-2024": colunas `CÓDIGO SGA`, `INEP`, `CNPJ`, `SISEP`).
+- **Oferta ↔ demanda (investigado na Missão 002, ver
+  [`docs/opportunity-model.md`](opportunity-model.md) para o detalhamento
+  completo)**: `unidade` (Query A) = `esc_codigo` (Query D) =
+  `DESIGNACAO` (`Unidades_Unificadas_com_Localizacao`) = `CÓDIGO SGA`
+  (`Parceiras*.xlsx`, unidades parceiras) = `Designacao`
+  (`totalalunoscreche*.xlsx`, unidades públicas) — **todos o mesmo espaço de
+  inteiros, sem padding de zeros assumido**. Cobertura medida para 2025:
+  99,4% das unidades da Query A têm algum registro de oferta (Parceiras2025
+  ∪ totalalunoscreche2025); 97,7%–100% para os outros de-paras (5 anos). Ver
+  `scripts/explore_offer_join.py` para o script que mede isso e
+  `docs/opportunity-model.md` para por que zfill/padding uniforme *não*
+  funciona (derruba a cobertura de ~99% para ~25-40%).
 
 ## Campos relevantes por base
 
@@ -119,6 +125,43 @@ README); distribuição por ano — 2021: 198.498, 2022: 158.122, 2023: 123.174,
 9. **Query B é grande (4,36M linhas, ~436MB descompactado).** Não abre no
    Excel (teto de 1.048.576 linhas) e não deve ser carregada inteira em
    memória em máquinas comuns — usar DuckDB ou leitura em chunks.
+10. **`grupamento` na Query A vem com espaço em branco à direita em pelo
+    menos um valor** (`"Maternal II "` — 12 caracteres, contra `"Maternal
+    II"` nos arquivos de oferta). Sem `TRIM()`, a junção com as planilhas de
+    oferta falha silenciosamente para todo o grupamento Maternal II (a
+    cobertura cai de 99,4% para 92,6% sem nenhum erro). Achado na Missão 002,
+    ver `docs/opportunity-model.md`.
+11. **`esc_codigo` da Query D não é único** (83 linhas com código repetido;
+    40 desses códigos duplicados correspondem a unidades citadas na Query
+    A). Na prática é o mesmo prédio com dois registros (um com endereço,
+    tipo 1; um legado sem endereço, tipo 3) — não são unidades diferentes
+    colidindo, mas ainda assim `esc_codigo` sozinho não serve como chave
+    primária confiável. `Unidades_Unificadas_com_Localizacao.DESIGNACAO` é
+    única e por isso foi escolhida como catálogo mestre de território.
+12. **As planilhas de oferta (`Parceiras*.xlsx`) só têm um código de unidade
+    citywide (`CÓDIGO SGA`/`SISEP`/`INEP`) a partir de 2023.** Em 2021 e
+    2022 a única coluna de identificação é `Nº`, um índice sequencial *por
+    CRE* (reinicia em 1 a cada CRE) — não serve para juntar com a Query A.
+    Nesses dois anos, ligar oferta parceira à demanda exigiria nome
+    normalizado (não determinístico, não tentado nesta missão).
+
+## Bases de oferta, ano a ano (`OferecimentosEvagas/`)
+
+Inspecionado na Missão 002. Cada ano tem aba e cabeçalho diferentes — não há
+parser genérico possível.
+
+| Ano | `Parceiras*.xlsx` (unidades parceiras) | `total(a)alunoscreche*.xlsx` (unidades públicas) |
+| --- | --- | --- |
+| 2021 | Aba `Planilha1`. Cabeçalho em 2 linhas (rótulo + Turmas/Alunos). Só `Nº` sequencial *por CRE* como identificador — **não** junta com a Query A. | Aba `2021`. Cabeçalho em 3 linhas (grupo/turno/métrica). Código `Designacao` (posição 1) junta com a Query A. |
+| 2022 | Abas `MAIO`, `QUADRO RESUMO`. Mesma limitação de 2021 (sem código citywide). | Estrutura equivalente a 2021 (não parseada por completo nesta missão). |
+| 2023 | Aba `2023`. Cabeçalho duplicado (maiúsculo + título) nas 2 primeiras linhas — primeira linha de dado é lixo (repete o cabeçalho). Primeira coluna com código citywide: `CÓDIGO SGA` (+ `INEP`, `CNPJ`, `SISEP`). | Estrutura equivalente a 2021/2022. |
+| 2024 | Abas `Apoio`, `Endereços`, `Maio-2024`. Cabeçalho real na aba `Maio-2024` está na **4ª linha física** (2 linhas de rótulo + 1 de grupo). `CÓDIGO SGA` presente. | Estrutura equivalente. |
+| 2025 | Abas `Apoio`, `Endereços`, `MAIO -2025`. Cabeçalho na **2ª linha física**. `CÓDIGO SGA` presente; colunas por grupamento (BI/BII/Mat.I/Mat.II) com `Meta`, `Aluno`, `Incluído`, `Vagas`. **Parseado por completo** — ver `scripts/build_opportunity.py`. | Aba `Consolidado`. Cabeçalho na 3ª linha física. Código `Designacao`/`Designação`; grupamentos `Berçário`/`Maternal I`/`Maternal II` × turno (`Integral`/`Parcial`) × métrica (`Aluno`/`Turma`) — **sem** coluna de meta/capacidade. **Parseado por completo.** |
+
+`Unidades_Unificadas_com_Localizacao.xlsx` (aba `Unidades_Unificadas`, sem
+recorte por ano) é o catálogo mestre: 1.941 unidades, `DESIGNACAO` única,
+com `CRE`, `microárea`, `bairro`, `LATITUDE`/`LONGITUDE` e `Tipo` (Escola,
+Creche Parceira, EDI, Creche, CIEP, CEJA, CDEI, Núcleo, Clube).
 
 ## Diferenças entre anos
 
@@ -150,10 +193,12 @@ README); distribuição por ano — 2021: 198.498, 2022: 158.122, 2023: 123.174,
 
 - **Planejamento de oferta (quantas vagas abrir e onde)**: Query A (demanda
   por opção/território/grupamento) + planilhas de oferta/vagas
-  (`OferecimentosEvagas/*`) + `NascidosvivosRJ` (demanda potencial futura) +
-  território (`Unidades_Unificadas_com_Localizacao` + shapefile de
-  microáreas). O elo entre planilhas de oferta e Query A ainda precisa ser
-  estabelecido (ver seção de chaves).
+  (`OferecimentosEvagas/*`, ligadas via o código de unidade — ver
+  `docs/opportunity-model.md`) + `NascidosvivosRJ` (demanda potencial
+  futura) + território (`Unidades_Unificadas_com_Localizacao` + shapefile
+  de microáreas, esta última ainda não validada). Déficit/superávit real só
+  é calculável para unidades parceiras (têm coluna de capacidade/meta);
+  unidades públicas só têm matrícula+turma nesta extração.
 - **Priorização da fila (em que ordem chamar)**: Query A (`situacao =
   'Lista de espera'` como ponto de partida, a confirmar com a equipe) + Query
   B (respostas) + Query C (pontuação/critério de desempate), sempre
@@ -170,7 +215,14 @@ README); distribuição por ano — 2021: 198.498, 2022: 158.122, 2023: 123.174,
 
 - Conteúdo completo do `.docx` de parametrização
   (`SME_Processo_Inscricao_Creche_parametrização.docx`).
-- Validação linha a linha da junção `microárea` ↔ `cod_territ`.
-- Join entre planilhas de oferta e Query A por unidade.
+- Validação linha a linha da junção `microárea` ↔ `cod_territ` (shapefile
+  ainda sem tabela de-para legível confirmada).
 - Query B em detalhe (carregada só via schema/dicionário, não explorada
   linha a linha nesta missão).
+- Parsers completos por ano das planilhas de oferta para 2021–2024 (só 2025
+  foi parseado por completo para o agregado; os outros anos foram
+  inspecionados só o suficiente para documentar schema e identificar a
+  chave — ver `docs/opportunity-model.md`).
+- Por que 5 unidades parceiras citadas na Query A 2025 não aparecem em
+  nenhuma planilha de oferta 2025 (hipótese: saíram do convênio antes da
+  extração de maio; não confirmado com a SME).
