@@ -11,6 +11,7 @@ Referências (não replicar aqui, consultar quando necessário):
 @docs/architecture.md
 @docs/data-understanding.md
 @docs/opportunity-model.md
+@docs/policy-lab.md
 @docs/deployment.md
 
 ## Arquitetura

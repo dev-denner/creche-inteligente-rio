@@ -10,6 +10,13 @@ import { ProvenanceBadge } from "@/components/ProvenanceBadge";
 import { CountdownDemo } from "@/components/family/CountdownDemo";
 import { OptionCard } from "@/components/family/OptionCard";
 import { ExplainWithClaude } from "@/components/family/ExplainWithClaude";
+import { CpfIdentity } from "@/components/family/CpfIdentity";
+import { GovBrEntry } from "@/components/family/GovBrEntry";
+import { TrustedContacts } from "@/components/family/TrustedContacts";
+import { ContactAttempts } from "@/components/family/ContactAttempts";
+import { ValidationSources } from "@/components/family/ValidationSources";
+import { PreferenceTransparency } from "@/components/family/PreferenceTransparency";
+import { DocumentTriage } from "@/components/family/DocumentTriage";
 
 type OptionEntry = { ordem: number; statusReal: string; record: OpportunityRecord | null };
 
@@ -50,11 +57,16 @@ export function FamilyPortal({
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
           Acompanhe a inscrição da criança
         </h1>
-        <div className="mt-1 flex items-center gap-2">
+        <div className="mt-1 flex flex-wrap items-center gap-2">
           <ProvenanceBadge kind="demonstracao" />
           <span className="text-xs text-black/50 dark:text-white/50">Processo demonstrativo</span>
+          <span className="ml-auto">
+            <GovBrEntry />
+          </span>
         </div>
       </header>
+
+      <CpfIdentity />
 
       {/* Main status card */}
       <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-black/[.02] p-6 dark:border-white/10 dark:bg-white/[.03]">
@@ -157,6 +169,12 @@ export function FamilyPortal({
         </div>
       </section>
 
+      {/* Central de Convocação Inteligente */}
+      <ContactAttempts />
+
+      {/* Contatos de confiança */}
+      <TrustedContacts />
+
       {/* Entenda sua classificação */}
       <section className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
@@ -218,6 +236,8 @@ export function FamilyPortal({
         )}
       </section>
 
+      <ValidationSources />
+
       {/* Concorrência histórica */}
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-medium text-black/50 uppercase tracking-wide dark:text-white/50">
@@ -252,6 +272,10 @@ export function FamilyPortal({
           </div>
         </section>
       )}
+
+      <PreferenceTransparency />
+
+      <DocumentTriage />
 
       {/* Explique minha situação */}
       <ExplainWithClaude

@@ -2,7 +2,12 @@ import "server-only";
 
 import Anthropic from "@anthropic-ai/sdk";
 
-const MODEL = "claude-opus-5";
+// claude-sonnet-5, not claude-opus-5: measured in this repo (Missão 005) with
+// the same short explanatory prompt -- Sonnet 5 answered in ~3.2s vs Opus 5's
+// ~6.9s (Opus even got truncated at the same max_tokens), both fully on-policy.
+// These are short, low-complexity explanations of already-computed data, not
+// long-horizon reasoning, so the latency win is worth taking for the demo.
+const MODEL = "claude-sonnet-5";
 
 let client: Anthropic | null = null;
 
@@ -57,6 +62,18 @@ Além disso:
 - Estruture a resposta em: resumo da pressão, fatores observados, limitações dos dados, possíveis ações de investigação.
 `.trim();
 
+const POLICY_SYSTEM_PROMPT = `
+Você ajuda um servidor da SME/CRE a entender o resultado de uma simulação feita no Laboratório de Política Pública: o efeito de somar peso pela ordem de preferência da família à pontuação socioeconômica, em uma amostra real de filas de creche de 2025.
+
+${SHARED_RULES}
+
+Além disso:
+- Esta é uma simulação/proposta em avaliação, NUNCA uma regra vigente. Nunca recomende aplicá-la automaticamente.
+- Você NÃO escolhe os pesos nem decide se a política deve ser adotada -- isso é decisão institucional/normativa humana.
+- Estruture a resposta em: principais mudanças observadas, possíveis benefícios, possíveis efeitos adversos, grupos/unidades mais afetados, trade-offs, e o que exigiria avaliação normativa antes de qualquer adoção.
+- Lembre que a amostra é real mas parcial (15 filas de maior demanda de 2025, sem replicar critérios de desempate oficiais) -- não generalize para toda a rede sem ressalva.
+`.trim();
+
 async function callClaude(system: string, userContent: string): Promise<string> {
   const anthropic = getAnthropicClient();
   const response = await anthropic.messages.create({
@@ -79,4 +96,26 @@ export async function explainFamilySituation(context: unknown): Promise<string> 
 export async function analyzeUnitPressure(context: unknown): Promise<string> {
   const userContent = `Analise a pressão desta unidade com base nestes dados estruturados (JSON):\n\n${JSON.stringify(context, null, 2)}`;
   return callClaude(CRE_SYSTEM_PROMPT, userContent);
+}
+
+export async function analyzePolicyImpact(context: unknown): Promise<string> {
+  const userContent = `Analise o impacto desta simulação de política com base nestes dados estruturados (JSON):\n\n${JSON.stringify(context, null, 2)}`;
+  return callClaude(POLICY_SYSTEM_PROMPT, userContent);
+}
+
+const DOCUMENT_SYSTEM_PROMPT = `
+Você faz uma triagem inicial e assistida de um documento enviado por uma família, para apoiar (nunca substituir) um servidor humano responsável.
+
+${SHARED_RULES}
+
+Você recebe SOMENTE metadados do arquivo (nome, tipo MIME, tamanho) -- nunca o conteúdo/bytes reais do documento neste protótipo. Por isso:
+- Você NÃO pode confirmar legibilidade real do conteúdo -- diga explicitamente que isso não é verificável neste protótipo sem acesso ao conteúdo do arquivo, e que precisa de revisão humana.
+- Você pode inferir um "tipo aparente" plausível a partir do nome do arquivo (ex.: "comprovante_residencia.pdf" sugere comprovante de residência), sempre deixando claro que é uma inferência pelo nome, não uma leitura do conteúdo.
+- Você NUNCA valida oficialmente vulnerabilidade, concede pontuação, rejeita benefício ou decide algo -- sua saída é só um apoio para o servidor revisar.
+- Estruture a resposta em exatamente estas linhas: "Documento legível:", "Tipo aparente:", "Ponto de atenção:", "Recomendação:" (a recomendação deve sempre mencionar revisão humana).
+`.trim();
+
+export async function triageDocument(context: unknown): Promise<string> {
+  const userContent = `Faça a triagem inicial deste documento com base nestes metadados (JSON, sem conteúdo do arquivo):\n\n${JSON.stringify(context, null, 2)}`;
+  return callClaude(DOCUMENT_SYSTEM_PROMPT, userContent);
 }

@@ -1,9 +1,11 @@
 import { findOpportunityRecord } from "@/lib/opportunity";
 import { readOpportunityData } from "@/lib/opportunity-data";
+import { readPolicyLabData } from "@/lib/policy-lab-data";
 import { CREView } from "@/components/cre/CREView";
 
 export default function CREPage() {
   const opportunity = readOpportunityData();
+  const policyLab = readPolicyLabData();
 
   if (!opportunity) {
     return (
@@ -22,5 +24,5 @@ export default function CREPage() {
 
   const highlight = findOpportunityRecord(opportunity.registros, 7013, "Berçário", "Integral");
 
-  return <CREView opportunity={opportunity} highlight={highlight} />;
+  return <CREView opportunity={opportunity} highlight={highlight} policyLab={policyLab} />;
 }

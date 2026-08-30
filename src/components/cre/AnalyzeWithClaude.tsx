@@ -2,14 +2,22 @@
 
 import { useState } from "react";
 
-export function AnalyzeWithClaude({ getContext }: { getContext: () => unknown }) {
+export function AnalyzeWithClaude({
+  getContext,
+  endpoint = "/api/claude/analyze-unit",
+  label = "Analisar com Claude",
+}: {
+  getContext: () => unknown;
+  endpoint?: string;
+  label?: string;
+}) {
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [text, setText] = useState("");
 
   async function handleClick() {
     setStatus("loading");
     try {
-      const response = await fetch("/api/claude/analyze-unit", {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(getContext()),
@@ -35,7 +43,7 @@ export function AnalyzeWithClaude({ getContext }: { getContext: () => unknown })
         disabled={status === "loading"}
         className="w-fit rounded-md bg-black px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-white dark:text-black"
       >
-        {status === "loading" ? "Analisando com Claude..." : "Analisar com Claude"}
+        {status === "loading" ? "Analisando com Claude..." : label}
       </button>
       {status !== "idle" && (
         <p

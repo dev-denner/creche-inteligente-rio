@@ -48,8 +48,9 @@ commit → push main → Vercel redeploy automático
 ```
 
 Sempre que o pipeline local (`python scripts/build_summary.py`,
-`python scripts/build_opportunity.py`, `python scripts/build_regua.py`)
-gerar uma versão nova dos agregados, commitar os JSONs atualizados em
+`python scripts/build_opportunity.py`, `python scripts/build_regua.py`,
+`python scripts/build_policy_lab.py`) gerar uma versão nova dos agregados,
+commitar os JSONs atualizados em
 `data/processed/` e dar push — o próximo deploy da Vercel já serve a versão
 nova. A Vercel **não** roda Python nem acessa `../dadoscreche`; ela só
 empacota o que já está no repositório.
@@ -84,15 +85,20 @@ missão rodando explicitamente sob Node 22.22.3 — ver relatório da missão.
   todo o dado que ela lê é `data/processed/*.json`, versionado no repo.
 - Não chama a API da Anthropic durante o build.
 - Não exige `ANTHROPIC_API_KEY` para compilar ou para servir qualquer
-  página (`/`, `/cre`, `/api/health`). A chave só é lida quando a família
-  clica em "Explique minha situação" ou a CRE clica em "Analisar com
-  Claude" (`/api/claude/explain-family`, `/api/claude/analyze-unit`) — sem
-  a chave, essas rotas respondem 503 com uma mensagem amigável, sem
-  derrubar a página.
+  página (`/`, `/cre`, `/api/health`). A chave só é lida quando o usuário
+  aciona uma das quatro chamadas Claude (`/api/claude/explain-family`,
+  `/api/claude/analyze-unit`, `/api/claude/analyze-policy`,
+  `/api/claude/triage-document`) — sem a chave, essas rotas respondem 503
+  com uma mensagem amigável, sem derrubar a página.
 - Não usa Edge Runtime em nenhuma rota que dependa de `node:fs` ou do SDK
-  da Anthropic — `/api/health`, `/api/claude/explain-family` e
-  `/api/claude/analyze-unit` declaram `export const runtime = "nodejs"`
-  explicitamente.
+  da Anthropic — `/api/health` e as quatro rotas `/api/claude/*` declaram
+  `export const runtime = "nodejs"` explicitamente.
+- Usa `claude-sonnet-5`, não `claude-opus-5`, nas quatro chamadas do
+  produto: teste comparativo feito na Missão 005 (mesmo prompt curto)
+  mediu Sonnet 5 respondendo em ~3,2s contra ~6,9s do Opus 5 (que inclusive
+  truncou no mesmo `max_tokens`), ambos plenamente aderentes às regras do
+  sistema. Para explicações curtas de dados já calculados, a diferença de
+  latência compensa; Claude Code (este agente) continua usando Opus.
 
 ## Variáveis de ambiente
 

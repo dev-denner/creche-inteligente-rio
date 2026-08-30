@@ -4,8 +4,11 @@ import { useState } from "react";
 
 import type { OpportunityData, OpportunityRecord } from "@/lib/opportunity";
 import { assessPressure, recordKey } from "@/lib/opportunity";
+import type { PolicyLabData } from "@/lib/policy-lab";
 import { ProvenanceBadge } from "@/components/ProvenanceBadge";
 import { UnitDrawer } from "@/components/cre/UnitDrawer";
+import { PolicyLab } from "@/components/cre/PolicyLab";
+import { LiveClassification } from "@/components/cre/LiveClassification";
 
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
@@ -31,9 +34,11 @@ function PressureDot({ record }: { record: OpportunityRecord }) {
 export function CREView({
   opportunity,
   highlight,
+  policyLab,
 }: {
   opportunity: OpportunityData;
   highlight: OpportunityRecord | null;
+  policyLab: PolicyLabData | null;
 }) {
   const [selected, setSelected] = useState<OpportunityRecord | null>(null);
   const distinctUnidades = new Set(opportunity.registros.map((r) => r.unidade)).size;
@@ -164,6 +169,14 @@ export function CREView({
           />
         </div>
       </section>
+
+      {policyLab && (
+        <LiveClassification
+          fila={policyLab.filas.find((f) => f.unidade === highlight?.unidade) ?? policyLab.filas[0]}
+        />
+      )}
+
+      {policyLab && <PolicyLab data={policyLab} />}
 
       {selected && <UnitDrawer record={selected} onClose={() => setSelected(null)} />}
     </div>
