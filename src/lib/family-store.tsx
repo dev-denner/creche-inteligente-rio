@@ -25,10 +25,13 @@ export type NewChild = {
 
 export type AuditEntry = { ts: string; tipo: string; desc: string; origin: string };
 
-type FamilyState = {
+type StoredFamilyState = {
   loggedIn: boolean;
   children: NewChild[];
   audit: AuditEntry[];
+};
+
+type FamilyState = StoredFamilyState & {
   login: () => void;
   logout: () => void;
   addChild: (c: NewChild) => void;
@@ -37,11 +40,11 @@ type FamilyState = {
 
 const KEY = "creche-inteligente-rio:family";
 
-function loadInitial(): { loggedIn: boolean; children: NewChild[]; audit: AuditEntry[] } {
+function loadInitial(): StoredFamilyState {
   if (typeof window === "undefined") return { loggedIn: false, children: [], audit: [] };
   try {
     const raw = window.localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) return JSON.parse(raw) as StoredFamilyState;
   } catch {
     // ignore corrupt storage
   }
@@ -51,21 +54,26 @@ function loadInitial(): { loggedIn: boolean; children: NewChild[]; audit: AuditE
 const FamilyCtx = createContext<FamilyState | null>(null);
 
 export function FamilyStoreProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState(loadInitial);
+  const [state, setState] = useState<StoredFamilyState>(loadInitial);
 
-  function persist(next: typeof state) {
-    setState(next);
-    if (typeof window !== "undefined") window.localStorage.setItem(KEY, JSON.stringify(next));
+  function updateState(updater: (prev: StoredFamilyState) => StoredFamilyState) {
+    setState((prev) => {
+      const next = updater(prev);
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(KEY, JSON.stringify(next));
+      }
+      return next;
+    });
   }
 
   const value: FamilyState = {
     loggedIn: state.loggedIn,
     children: state.children,
     audit: state.audit,
-    login: () => persist({ ...state, loggedIn: true }),
-    logout: () => persist({ ...state, loggedIn: false }),
-    addChild: (c) => persist({ ...state, children: [...state.children, c] }),
-    addAudit: (e) => persist({ ...state, audit: [e, ...state.audit] }),
+    login: () => updateState((prev) => ({ ...prev, loggedIn: true })),
+    logout: () => updateState((prev) => ({ ...prev, loggedIn: false })),
+    addChild: (c) => updateState((prev) => ({ ...prev, children: [...prev.children, c] })),
+    addAudit: (e) => updateState((prev) => ({ ...prev, audit: [e, ...prev.audit] })),
   };
 
   return <FamilyCtx.Provider value={value}>{children}</FamilyCtx.Provider>;
